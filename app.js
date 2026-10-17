@@ -5,7 +5,7 @@ var CONFIG = {
   name:          "Tom Bronder",
   years:         "",     // e.g. "1947 – 2026" — leave "" to hide
   closingWords:  "forever in our hearts",
-  photoSeconds:  6,      // how long each photo stays on screen
+  photoSeconds:  4.5,    // how long each photo stays on screen
   fadeSeconds:   2,      // crossfade length between photos
   titleSeconds:  10,     // opening title card duration
   closingSeconds:12,     // closing card duration before looping
@@ -13,6 +13,7 @@ var CONFIG = {
   musicVolume:   0.85,   // 0.0 – 1.0
   kenBurns:      true,   // gentle slow zoom/drift on photos
   chapters:      true,   // show the gentle chapter cards from photos.js
+  shuffle:       true,   // randomize photo order — a fresh mix of old & new each visit
 };
 /* ================================================================ */
 
@@ -29,12 +30,21 @@ var CONFIG = {
   var chapterAt = {};
   for (var ci = 0; ci < chapters.length; ci++) chapterAt[chapters[ci].at] = chapters[ci].text;
 
+  // Play order: a shuffled copy when shuffle is on, otherwise photos.js order.
+  var deck = PHOTOS.slice();
+  if (CONFIG.shuffle) {
+    for (var si0 = deck.length - 1; si0 > 0; si0--) {   // Fisher–Yates
+      var sj = Math.floor(Math.random() * (si0 + 1));
+      var st = deck[si0]; deck[si0] = deck[sj]; deck[sj] = st;
+    }
+  }
+
   var slides = [{ type: 'title', dur: CONFIG.titleSeconds * 1000 }];
-  for (var pi = 0; pi < PHOTOS.length; pi++) {
+  for (var pi = 0; pi < deck.length; pi++) {
     if (chapterAt[pi]) {
       slides.push({ type: 'chapter', text: chapterAt[pi], dur: CONFIG.chapterSeconds * 1000 });
     }
-    slides.push({ type: 'photo', src: PHOTOS[pi], dur: CONFIG.photoSeconds * 1000 });
+    slides.push({ type: 'photo', src: deck[pi], dur: CONFIG.photoSeconds * 1000 });
   }
   slides.push({ type: 'close', dur: CONFIG.closingSeconds * 1000 });
 
