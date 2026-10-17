@@ -1,8 +1,20 @@
 # Memorial Photo Montage — Tom Bronder
 
+**Watch it online:** https://bronder.github.io/TomBronder_Memorial/
+
 A self-contained web slideshow: 724 photos with gentle crossfades and a slow
 Ken Burns drift, set to "Quiet Remembrance" on loop. Runs entirely offline —
 no internet needed at the venue.
+
+The photos play as a story in two acts: the early black-and-white and faded
+years first, then — under a soft "through the years" card — everything with a
+real date (from EXIF or filenames) in chronological order, ending with the
+most recent photos.
+
+**Note:** this repository is public so GitHub Pages can serve it for free,
+which means the photos are viewable by anyone with the URL. To take the site
+down, delete the repository or make it private (GitHub → Settings → Danger
+Zone); the local copy in this folder keeps working via `./start.sh`.
 
 ## To play it
 
