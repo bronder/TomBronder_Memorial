@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>In Loving Memory of Tom Bronder</title>
+<style>
+  html, body {
+    margin: 0; padding: 0;
+    width: 100%; height: 100%;
+    background: #000;
+    overflow: hidden;
+    font-family: Georgia, "Palatino Linotype", "Book Antiqua", serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  #stage { position: fixed; inset: 0; background: #000; }
+
+  /* Two crossfading photo layers */
+  .layer {
+    position: absolute; inset: 0;
+    opacity: 0;
+    transition: opacity var(--fade, 2s) ease;
+    display: flex; align-items: center; justify-content: center;
+    background: #000;
+  }
+  .layer.on { opacity: 1; }
+  .layer img {
+    width: 100%; height: 100%;
+    object-fit: contain;
+    will-change: transform;
+  }
+
+  /* Gentle vignette to warm the edges */
+  #vignette {
+    position: fixed; inset: 0;
+    pointer-events: none;
+    background: radial-gradient(ellipse at center,
+      rgba(0,0,0,0) 55%, rgba(0,0,0,0.22) 100%);
+  }
+
+  /* Ken Burns drift — subtle zoom / pan variants */
+  @keyframes kb-a { from { transform: scale(1.06); } to { transform: scale(1.14) translate(1.4%, -0.9%); } }
+  @keyframes kb-b { from { transform: scale(1.14) translate(-1.4%, 0.9%); } to { transform: scale(1.06); } }
+  @keyframes kb-c { from { transform: scale(1.10) translate(1.1%, 0.7%); } to { transform: scale(1.10) translate(-1.1%, -0.7%); } }
+
+  /* Text cards (title / closing) */
+  .card {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    text-align: center;
+    color: #f2ece1;
+    padding: 0 6vw;
+  }
+  .card .kicker {
+    font-style: italic;
+    font-size: clamp(18px, 2.6vw, 30px);
+    letter-spacing: 0.28em;
+    text-transform: lowercase;
+    color: #b9a68f;
+    margin-bottom: 2.2vh;
+    animation: rise 3.2s ease both;
+  }
+  .card .name {
+    font-size: clamp(36px, 6.5vw, 84px);
+    letter-spacing: 0.06em;
+    font-weight: normal;
+    margin: 0;
+    animation: rise 3.2s 0.5s ease both;
+  }
+  .card .years {
+    font-size: clamp(16px, 2.2vw, 26px);
+    letter-spacing: 0.22em;
+    color: #b9a68f;
+    margin-top: 2.2vh;
+    animation: rise 3.2s 1s ease both;
+  }
+  .card .rule {
+    width: 130px; height: 1px;
+    background: linear-gradient(90deg, transparent, #8d7c66, transparent);
+    margin: 3.4vh 0 0 0;
+    animation: rise 3.2s 1.4s ease both;
+  }
+  @keyframes rise {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .card .chapterText {
+    font-style: italic;
+    font-size: clamp(20px, 3vw, 42px);
+    letter-spacing: 0.34em;
+    color: #c4b29b;
+    animation: rise 3s ease both;
+  }
+
+  /* Start overlay */
+  #start {
+    position: fixed; inset: 0; z-index: 60;
+    background: #000;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    text-align: center;
+    transition: opacity 1.6s ease;
+  }
+  #start.gone { opacity: 0; pointer-events: none; }
+  #start .kicker {
+    font-style: italic; font-size: clamp(16px, 2.2vw, 24px);
+    letter-spacing: 0.28em; color: #b9a68f;
+  }
+  #start .name {
+    font-size: clamp(30px, 5vw, 64px); color: #f2ece1;
+    margin: 2vh 0 5vh;
+  }
+  #begin {
+    font-family: inherit;
+    font-size: clamp(15px, 1.6vw, 20px);
+    letter-spacing: 0.24em;
+    color: #d8cbb8;
+    background: transparent;
+    border: 1px solid #6d5f4e;
+    border-radius: 999px;
+    padding: 14px 46px;
+    cursor: pointer;
+    transition: border-color .4s, color .4s;
+  }
+  #begin:hover { border-color: #b9a68f; color: #f2ece1; }
+
+  /* Subtle progress line */
+  #progress {
+    position: fixed; bottom: 0; left: 0;
+    height: 3px; width: 0;
+    background: rgba(200,184,160,0.55);
+    transition: opacity 1s ease, width .8s linear;
+    z-index: 10;
+  }
+  #progress.dim { opacity: 0.12; }
+
+  #hint {
+    position: fixed; bottom: 22px; left: 50%;
+    transform: translateX(-50%);
+    color: #8d7f6c;
+    font-size: 14px;
+    letter-spacing: 0.08em;
+    z-index: 20;
+    transition: opacity 1.5s ease;
+  }
+  #hint.gone { opacity: 0; }
+
+  body.ui-idle { cursor: none; }
+</style>
+</head>
+<body>
+  <div id="stage">
+    <div class="layer" id="layerA"></div>
+    <div class="layer" id="layerB"></div>
+  </div>
+  <div id="vignette"></div>
+  <div id="progress"></div>
+  <div id="hint">space pause &nbsp;·&nbsp; &#8592; &#8594; navigate &nbsp;·&nbsp; f fullscreen &nbsp;·&nbsp; m mute &nbsp;·&nbsp; click to pause</div>
+  <div id="start">
+    <div class="kicker">in loving memory of</div>
+    <div class="name">Tom Bronder</div>
+    <button id="begin">Begin</button>
+  </div>
+  <audio id="music" src="music.mp3" loop preload="auto"></audio>
+
+  <script src="photos.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
